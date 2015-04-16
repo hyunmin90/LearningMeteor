@@ -1,0 +1,105 @@
+<head>
+  <title>mp4</title>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>User management</h1>
+    </header>
+    <button type="submit" class="btn btn-default listuser">listuser</button>
+    <button type="submit" class="btn btn-default adduser">adduser</button>
+    <button type="submit" class="btn btn-default addtask">Tasks</button>
+    {{#if showUser}}
+      {{> UsersList}}
+    {{/if}}
+
+    {{#if addUser}}
+      {{> createUser}}
+    {{/if}} 
+    
+    {{#if profile}}
+        {{> userProfile}}
+    {{/if}}
+    
+    {{#if task}}
+        {{> addTask}}
+    {{/if}}
+  
+    
+  </div>
+  
+  
+</body>
+
+<template name="user">
+  <tr>
+    <td><a href="#" id={{_id}}>{{name}}</a></td>
+    <td>{{email}}</td>
+    <td><button type="submit" class="delete btn btn-default" id={{_id}}>Delete</button></td>
+  </tr>
+</template>
+
+<template name="UsersList">
+  <h1>List Users</h1>
+        <table data-toggle="table" class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          {{#each users}}
+            {{> user}}
+          {{/each}}
+        </table>
+</template>
+
+
+<template name="createUser">
+  <h1>Create User</h1>
+   <form class="new-user">
+      <input type="text" class="form-control" name="name" placeholder="Name" />
+      <input type="text" class="form-control" name="email" placeholder="Email" />
+      <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+  
+</template>
+
+
+
+
+<template name="userProfile">
+  
+  <h1>User Profile</h1>
+  <table data-toggle="table" class="table">
+      {{#each details}}
+        <tr>
+          <td>{{name}}</td>
+          <td>{{email}}</td>
+        </tr>
+      {{/each}}
+    
+      {{#each taskDetails}}
+        <tr>
+          <td>{{name}}</td>
+          <td>{{deadline}}</td>
+        </tr>
+      {{/each}}
+    
+  </table>
+</template>
+
+
+
+<template name="addTask">
+  <h1>Add task</h1>
+  <form class="new-task">
+    <input type="text" class="form-control" name="name" placeholder="Name" /><br>
+    <input type="text" class="form-control" name="Description" placeholder="Description" /><br>
+    <input type="text" class="form-control" name="Deadline" id="my-datepicker"><br>
+    <button type="submit" class="btn btn-default">Submit</button>
+  </form>
+
+</template>
+

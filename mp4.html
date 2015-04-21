@@ -75,18 +75,20 @@
   <table data-toggle="table" class="table">
       {{#each details}}
         <tr>
-          <td>{{name}}</td>
-          <td>{{email}}</td>
+          <td><h3>{{name}}</h3></td>
+          <td><h3>{{email}}</h3></td>
         </tr>
       {{/each}}
-    
-      {{#each taskDetails}}
-        <tr>
-          <td>{{name}}</td>
-          <td>{{deadline}}</td>
-        </tr>
-      {{/each}}
-    
+  </table>
+  <h1>Pending Tasks</h1>
+  <table data-toggle="table" class="table">
+    <tr>
+      {{#with taskDetails}}
+      <td>{{name}}</td>
+      <td>{{deadline}}</td>
+      {{/with}}
+      <td id="completion"></td>    
+    </tr>
   </table>
 </template>
 

@@ -75,12 +75,19 @@ if (Meteor.isClient) {
   
   });
   
-  
+
+    
   Template.createUser.events({
     
     "submit .new-user": function (event) {
       var name = event.target.name.value;
       var email = event.target.email.value;
+      
+      var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+      if(re.test(email)==false){
+        alert('This is not an email form');
+        return false;
+      }
       var checker = Users.findOne({email:email});
       if(typeof checker=='undefined')
       {
@@ -105,12 +112,16 @@ if (Meteor.isClient) {
   
   Template.userProfile.helpers({
     details: function(){
-        var id = Session.get("clickedUser");
-        return Users.find({_id:id});
-      },
+      var id = Session.get("clickedUser");
+      return Users.find({_id:id});
+    },
     taskDetails: function(){
       var id = Session.get("clickedUser");
-      return Tasks.find({assignedUser:id});
+      var taskDetail= Task.findOne({assignedUser:id});
+      if(taskDetail.completed==false){
+        $("#completion").append("<p>Not Completed</p>");
+      }
+      return taskDetail;
     }
   });
   
@@ -118,9 +129,7 @@ if (Meteor.isClient) {
     $('#my-datepicker').datepicker();
   }
   
-  Template.getTask.helpers({
-  
-  });
+
 
   
   
@@ -130,6 +139,9 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
   Meteor.startup(function () {
     // code to run on server at startup
+  });
+  Meteor.methods({
+    
   });
 }
 

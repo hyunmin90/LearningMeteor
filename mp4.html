@@ -9,7 +9,8 @@
     </header>
     <button type="submit" class="btn btn-default listuser">listuser</button>
     <button type="submit" class="btn btn-default adduser">adduser</button>
-    <button type="submit" class="btn btn-default addtask">Tasks</button>
+    <button type="submit" class="btn btn-default tasks">Tasks</button>
+    <button type="submit" class="btn btn-default addTasks">Add Tasks</button>
     {{#if showUser}}
       {{> UsersList}}
     {{/if}}
@@ -23,7 +24,11 @@
     {{/if}}
     
     {{#if task}}
-        {{> addTask}}
+        {{> Tasks}}
+    {{/if}}
+    
+    {{#if addtask}}
+        {{>addTask}}
     {{/if}}
   
     
@@ -73,23 +78,52 @@
   
   <h1>User Profile</h1>
   <table data-toggle="table" class="table">
-      {{#each details}}
+    {{#each details}}
         <tr>
           <td><h3>{{name}}</h3></td>
           <td><h3>{{email}}</h3></td>
         </tr>
-      {{/each}}
+    {{/each}}
   </table>
   <h1>Pending Tasks</h1>
-  <table data-toggle="table" class="table">
-    <tr>
-      {{#with taskDetails}}
-      <td>{{name}}</td>
-      <td>{{deadline}}</td>
-      {{/with}}
-      <td id="completion"></td>    
-    </tr>
+  
+  
+  
+  <table data-toggle="table" class="table notCompleted">
+    {{#each notCompleted}}
+      <tr>
+        <td>{{name}}</td>
+        <td>Deadline: {{deadline}}</td> 
+        <td id="completion">Uncompleted&nbsp;&nbsp;&nbsp;<button id={{_id}} class="completedButton">Completed</button></td> 
+      </tr>
+    {{/each}} 
   </table>
+  
+  
+  <button class="getCompleted">Get Completed</button>
+  
+  <table data-toggle="table" class="table completed">
+    {{#each Completed}}
+      <tr>
+        <td>{{name}}</td>
+        <td>{{deadline}}</td> 
+        <td id="completion">Completed&nbsp;&nbsp;&nbsp;<button id={{_id}} class="uncompletedButton">Uncomplete</button></td> 
+      </tr>
+    {{/each}} 
+  </table>
+    
+  <!--<table data-toggle="table" class="table">
+    
+    
+    
+    {{#each taskDetails}}
+      <tr>
+        <td>{{name}}</td>
+        <td>{{deadline}}</td> 
+        <td id="completion">{{#if completed}}completed{{else}}uncompleted&nbsp;&nbsp;&nbsp;<button id={{_id.toHexString }} class="completed">Completed</button>{{/if}}</td> 
+      </tr>
+    {{/each}} 
+  </table>-->
 </template>
 
 
@@ -100,8 +134,33 @@
     <input type="text" class="form-control" name="name" placeholder="Name" /><br>
     <input type="text" class="form-control" name="Description" placeholder="Description" /><br>
     <input type="text" class="form-control" name="Deadline" id="my-datepicker"><br>
-    <button type="submit" class="btn btn-default">Submit</button>
+    <input type="text" class="form-control" name="assignedUser"><br>
+    <button type="submit" class="btn btn-default new-task">Submit</button>
   </form>
 
 </template>
+
+
+<template name="Tasks">
+ 
+  <h1>Task</h1>
+  <button type="submit" class="btn btn-default addTasks">Add Task</button>
+  {{#if task}}
+        {{> addTask}}
+  
+  
+  {{else}}
+    <table data-toggle="table" class="table">
+      {{#each getTasks}}
+          <tr>
+            <td>{{name}}</td>
+            <td>{{assignedUserName}}</td>
+            <td>{{deadline}}</td>
+
+          </tr>
+      {{/each}}
+    </table>
+  {{/if}}
+</template>
+
 

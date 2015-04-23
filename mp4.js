@@ -17,8 +17,12 @@ if (Meteor.isClient) {
       return Session.get("profile");
     },
     task:function(){
-      return Session.get("addtask");
+      return Session.get("tasks");
+    },
+    addtask:function(){
+      return Session.get("addTasks");
     }
+    
  
   });
   
@@ -35,24 +39,40 @@ if (Meteor.isClient) {
     
     'click .listuser':function(event){
       Session.set("listuser",true);
+      Session.set("addTasks",false);
       Session.set("profile",false);
       Session.set("adduser",false);
-      Session.set("addtask",false);
+      Session.set("tasks",false);
     },
     'click .adduser':function(event){
       Session.set("adduser",true);
+      Session.set("addTasks",false);
       Session.set("listuser",false);
       Session.set("profile",false);
-      Session.set("addtask",false);
+      Session.set("tasks",false);
     },
-    'click .addtask':function(event){
+    'click .tasks':function(event){
       
-      Session.set("addtask",true);
+      Session.set("tasks",true);
+      Session.set("addTasks",false);
       Session.set("adduser",false);
       Session.set("listuser",false);
       Session.set("profile",false);
+    },
+    'click .addTasks':function(event){
+      
+      Session.set("addTasks",true);
+      
+      Session.set("tasks",false);
+      
+      Session.set("adduser",false);
+      
+      Session.set("listuser",false);
+      
+      Session.set("profile",false);
       $("#datepicker").datepicker();
     }
+    
     
     
     
@@ -68,7 +88,7 @@ if (Meteor.isClient) {
       //var profile = Users.findOne({_id:event.target.id});
     },
     
-    'click .delete': function (event) { 
+    'click .delete': function (event) {
       Users.remove({_id:event.target.id});
     }
   
@@ -115,17 +135,104 @@ if (Meteor.isClient) {
       var id = Session.get("clickedUser");
       return Users.find({_id:id});
     },
-    taskDetails: function(){
+    Completed: function(){
       var id = Session.get("clickedUser");
-      var taskDetail= Task.findOne({assignedUser:id});
-      if(taskDetail.completed==false){
-        $("#completion").append("<p>Not Completed</p>");
-      }
+      var taskDetail= Task.find({assignedUser:id,completed:true});
+      return taskDetail;
+    },
+    notCompleted: function(){
+      var id = Session.get("clickedUser");
+      var taskDetail= Task.find({assignedUser:id,completed:false});
       return taskDetail;
     }
+  
   });
   
+  
+  
+  Template.userProfile.events({
+    
+    'click .completedButton': function (event) {
+      
+      Task.update(event.target.id,{$set:{completed:true}});
+    },
+    'click .uncompletedButton': function (event) { 
+      Task.update(event.target.id,{$set:{completed:false}});
+    },
+    'click .getCompleted':function(event){
+      $('.completed').toggle();
+    }
+  
+  });
+  
+  
+  Template.addTask.events({
+    
+    "submit .new-task": function (event) {
+      
+      alert("clicked");
+      var name = event.target.name.value;
+      var description = event.target.Description.value;
+      var deadline = $("#my-datepicker").val();
+      var assignedUserName = event.target.assignedUser.value;
+      alert(assignedUserName);
+      var findeone = Users.findOne({name:assignedUserName},{fields:{_id:1}});
+      alert(findeone);
+
+      if(typeof findeone=='undefined'){ //checker for if assigned user exists
+          alert("DNE");
+          return false;
+      }
+      var assignedUser = findeone._id;
+      
+      Task.insert({
+          name: name,
+          description:description,
+          deadline:deadline,
+          assignedUserName:assignedUserName,
+          completed:false,
+          assignedUser:assignedUser,
+          dateCreated: new Date() // current time
+        });
+      
+        
+        // Clear form
+        event.target.text.value = "";
+
+      return false;
+      
+      
+      
+      
+    }
+  
+    
+  });
+  
+  Template.Tasks.events({
+  
+  
+  })
+  
+  Template.Tasks.helpers({
+    
+    getTasks: function(){
+      return Task.find({});
+    }
+    
+  });
+  
+  
+  
+  
+  
+  Template.userProfile.rendered=function(){
+    $('.completed').hide();
+   
+  }
+  
   Template.addTask.rendered=function() {
+    
     $('#my-datepicker').datepicker();
   }
   
@@ -146,3 +253,32 @@ if (Meteor.isServer) {
 }
 
 
+
+
+
+/*var name = event.target.name.value;
+      var description = event.target.Description.value;
+      var deadline = event.taget.deadline.value;
+      var assignedUser = event.target.assignedUser.value;
+      
+      var checker = Users.findOne({name:assignedUser});
+
+      
+      
+      if(typeof checker=='undefined')
+      {
+        Task.insert({
+          name: name,
+          description:description,
+          deadline:deadline,
+          assignedUserName:assignedUser,
+          dateCreated: new Date() // current time
+        });
+        // Clear form
+        event.target.text.value = "";
+      }
+      else
+        alert("email being used!!");
+      // Prevent default form submit
+      return false;
+*/

@@ -1,7 +1,10 @@
-Users = new Mongo.Collection("users");
-Task = new Mongo.Collection("tasks");
+Users = new Meteor.Collection("users");
+Task = new Meteor.Collection("tasks");
+
+var count = 0;
 
 if (Meteor.isClient) {
+  
   
   
   // This code only runs on the client
@@ -9,9 +12,6 @@ if (Meteor.isClient) {
     
     showUser:function(){
       return Session.get("listuser");
-    },
-    addUser:function(){
-      return Session.get("adduser");
     },
     profile:function(){
       return Session.get("profile");
@@ -21,6 +21,9 @@ if (Meteor.isClient) {
     },
     addtask:function(){
       return Session.get("addTasks");
+    },
+    taskDetails:function(){
+      return Session.get("clickedTask");
     }
     
  
@@ -39,38 +42,15 @@ if (Meteor.isClient) {
     
     'click .listuser':function(event){
       Session.set("listuser",true);
-      Session.set("addTasks",false);
-      Session.set("profile",false);
-      Session.set("adduser",false);
-      Session.set("tasks",false);
-    },
-    'click .adduser':function(event){
-      Session.set("adduser",true);
-      Session.set("addTasks",false);
-      Session.set("listuser",false);
+      Session.set("clickedTask",false);
       Session.set("profile",false);
       Session.set("tasks",false);
     },
     'click .tasks':function(event){
-      
       Session.set("tasks",true);
-      Session.set("addTasks",false);
-      Session.set("adduser",false);
+      Session.set("clickedTask",false);
       Session.set("listuser",false);
       Session.set("profile",false);
-    },
-    'click .addTasks':function(event){
-      
-      Session.set("addTasks",true);
-      
-      Session.set("tasks",false);
-      
-      Session.set("adduser",false);
-      
-      Session.set("listuser",false);
-      
-      Session.set("profile",false);
-      $("#datepicker").datepicker();
     }
     
     
@@ -82,7 +62,6 @@ if (Meteor.isClient) {
     
     'click a': function (event) {
       Session.set("profile",true);
-      Session.set("adduser",false);
       Session.set("listuser",false);
       Session.set("clickedUser",event.target.id);
       //var profile = Users.findOne({_id:event.target.id});
@@ -128,7 +107,30 @@ if (Meteor.isClient) {
   
     
   });
+  
+  
+  Template.taskDetail.events({
+    'click .next': function (event) {
+      alert(event.target.id);
+    },
+    'click .previous': function (event) {
+      alert(event.target.id);
+    }
+  
+  });
  
+  Template.taskDetail.helpers({
+  
+    taskDetail:function(){
+      var id = Session.get("clickedTaskId");
+      return Task.find({_id:id});
+    },
+    Users: function () {
+      return Users.find({});
+    }
+  
+  
+  });
   
   Template.userProfile.helpers({
     details: function(){
@@ -165,22 +167,43 @@ if (Meteor.isClient) {
   
   });
   
+  Template.addTask.helpers({
+    Users: function(){
+      return Users.find({});
+    }
+  
+  
+  });
+  
   
   Template.addTask.events({
     
     "submit .new-task": function (event) {
       
-      alert("clicked");
       var name = event.target.name.value;
       var description = event.target.Description.value;
       var deadline = $("#my-datepicker").val();
       var assignedUserName = event.target.assignedUser.value;
-      alert(assignedUserName);
+      if(name==''){
+        $(".errorname").css('visibility', 'visible');
+        return false;
+      }
+      
+      $(".errorname").css('visibility', 'hidden');
+      
+      
+      if(deadline=='')
+      {
+        $(".deadline").css('visibility', 'visible');
+        return false;
+      }
+      
+      $(".deadline").css('visibility', 'hidden');
+
       var findeone = Users.findOne({name:assignedUserName},{fields:{_id:1}});
-      alert(findeone);
 
       if(typeof findeone=='undefined'){ //checker for if assigned user exists
-          alert("DNE");
+          alert("User does not exist!!");
           return false;
       }
       var assignedUser = findeone._id;
@@ -209,20 +232,202 @@ if (Meteor.isClient) {
     
   });
   
+  
+  
+  Template.updateTask.events({
+    
+    "submit .update-task": function (event) {
+      var id = event.target.id.value;
+      var name = event.target.name.value;
+      var description = event.target.Description.value;
+      var deadline = $("#my-datepicker").val();
+      var assignedUserName = event.target.assignedUser.value;
+      if(name==''){
+        $(".errorname").css('visibility', 'visible');
+        return false;
+      }
+      
+      $(".errorname").css('visibility', 'hidden');
+      
+      
+      if(deadline=='')
+      {
+        $(".deadline").css('visibility', 'visible');
+        return false;
+      }
+      
+      $(".deadline").css('visibility', 'hidden');
+
+      var findeone = Users.findOne({name:assignedUserName},{fields:{_id:1}});
+
+      if(typeof findeone=='undefined'){ //checker for if assigned user exists
+          alert("User does not exist!!");
+          return false;
+      }
+      var assignedUser = findeone._id;
+      Task.update(this._id, {$set:{
+          name: name,
+          description:description,
+          deadline:deadline,
+          assignedUserName:assignedUserName,
+          assignedUser:assignedUser}
+        });
+      
+        
+        // Clear form
+        event.target.text.value = "";
+
+      return false;
+    }
+  
+    
+  });
+  
+  Template.updateTask.helpers({
+  Users: function(){
+      return Users.find({});
+    }
+  
+  });
+  
+  
+  
   Template.Tasks.events({
+    
+    'click .delete':function(event){
+      Task.remove({_id:event.target.id});
+    },
+    
+    'click .next':function(event){
+      
+      
+      if(Session.get("count")==null)
+        Session.set("count",0);
+      
+      count=Session.get("count")+10;
+      Session.set("count",count);
+    
+    },
+    'click .previous':function(event){
+      
+      if(Session.get("count")==null)
+        Session.set("count",0);
+      
+      if(Session.get("count")-10<0){
+        Session.set("count",0);
+        count=0;
+      }
+      else
+        count=Session.get("count")-10;
+      
+      Session.set("count",count);
+    
+    },
+    
+    
+    'click a': function (event) {
+      Session.set("clickedTask",true);
+      Session.set("profile",false);
+      Session.set("adduser",false);
+      Session.set("listuser",false);
+      Session.set("tasks",false);
+      Session.set("clickedTaskId",event.target.id);
+
+    },
+    
+    "click .asc": function(event){
+        Session.set("order","asc");
+    },
+    "click .desc": function(event){
+        Session.set("order","desc");
+    },
+    
+    "click .pending": function(event){
+        Session.set("status",false);
+    },
+    "click .completed": function(event){
+        Session.set("status",true);
+    },
+    "click .all": function(event){
+        Session.set("status","all");
+    },
+    
+    
+    
+    "change .orderin":function(event){
+        Session.set("orderby",$(event.currentTarget).find(':selected').data("id"));
+    }
   
-  
-  })
+  });
   
   Template.Tasks.helpers({
+    //DO I REALLY CREATE THIS SHITTY CODE FOR EACH CASE FOR ASC AND DESC?? THIS WOULD BE INSANE.
+    //.RATHER USE ANGULAR IF THIS IS TRUE
     
-    getTasks: function(){
-      return Task.find({});
+    
+    getTasksAsc: function(){
+      
+      var status = Session.get("status");
+      
+      if(Session.get("order")=="asc")
+      {
+        return sortByAsc(Session.get("orderby"),status);
+      }
+      else if(Session.get("order")=="desc")
+      {
+        return sortByDesc(Session.get("orderby"),status);
+      }
+      else
+        return sortByDesc(Session.get("orderby"),status);
     }
     
   });
   
-  
+  sortByAsc = function(orderby,status){
+    
+    
+    var sort_order = {};
+    
+    sort_order[orderby] = 0;
+    
+    var checker= Task.findOne({},{sort:sort_order,skip:Session.get("count"),limit:10});
+    
+    if(typeof checker=='undefined')
+      Session.set("count",0);
+    
+    if(status==undefined||status=="all")
+    {
+      var result = Task.find({},{sort:sort_order,skip:Session.get("count"),limit:10});
+
+    }
+    else{
+      var result = Task.find({completed:status},{sort:sort_order,skip:Session.get("count"),limit:10});
+    }
+    return result;
+    
+  }
+  sortByDesc = function(orderby,status){
+    
+    var sort_order = {};
+    
+    sort_order[orderby] = -1;
+    
+    var checker= Task.findOne({},{sort:sort_order,skip:Session.get("count"),limit:10});
+    
+    if(typeof checker=='undefined')
+      Session.set("count",0);
+    if(status==undefined||status=="all")
+    {
+      var result = Task.find({},{sort:sort_order,skip:Session.get("count"),limit:10});
+
+    }
+   
+    else{
+      var result = Task.find({completed:status},{sort:sort_order,skip:Session.get("count"),limit:10});
+    }
+    
+    return result;
+  }
   
   
   
@@ -236,6 +441,22 @@ if (Meteor.isClient) {
     $('#my-datepicker').datepicker();
   }
   
+  Template.updateTask.rendered=function() {
+    
+    $('#my-datepicker').datepicker();
+  }
+  
+Template.UsersList.rendered=function() {
+    $('#myModal').on('shown.bs.modal', function () {
+    $('#myInput').focus()
+    })
+  }
+
+Template.Tasks.rendered=function() {
+    $('#myModal').on('shown.bs.modal', function () {
+    $('#myInput').focus()
+    })
+  }
 
 
   
@@ -282,3 +503,5 @@ if (Meteor.isServer) {
       // Prevent default form submit
       return false;
 */
+
+

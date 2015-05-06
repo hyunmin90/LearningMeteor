@@ -8,40 +8,79 @@
       <h1>User management</h1>
     </header>
     <button type="submit" class="btn btn-default listuser">listuser</button>
-    <button type="submit" class="btn btn-default adduser">adduser</button>
     <button type="submit" class="btn btn-default tasks">Tasks</button>
-    <button type="submit" class="btn btn-default addTasks">Add Tasks</button>
+    
+  
+    
+    
+    
     {{#if showUser}}
       {{> UsersList}}
     {{/if}}
-
-    {{#if addUser}}
-      {{> createUser}}
-    {{/if}} 
-    
     {{#if profile}}
         {{> userProfile}}
     {{/if}}
-    
     {{#if task}}
         {{> Tasks}}
     {{/if}}
-    
-    {{#if addtask}}
-        {{>addTask}}
+    {{#if taskDetails}}
+        {{> taskDetail}}
     {{/if}}
-  
+    
+      
     
   </div>
   
   
 </body>
 
+<template name="taskDetail">
+  
+  <h1>Task Detail</h1>
+  <button type="button" class="btn btn-primary btn-lg updateTask" data-toggle="modal" data-target="#myModal">
+  Edit Task 
+  </button><br><br><br>
+ 
+  <button type="button" class="btn btn-primary btn-lg previous" >
+  Previous 
+  </button>
+  
+   <button type="button" class="btn btn-primary btn-lg next" >
+  Next 
+  </button>
+  
+  <br><br>
+  
+  <table data-toggle="table" class="table">
+    {{#each taskDetail}}
+        <tr>
+          <td><h3>{{name}}</h3></td>
+          <td><h3>{{description}}</h3></td>
+        </tr>
+        
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Task</h4>
+              </div>
+              <div class="modal-body">
+                      {{> updateTask}}
+              </div>
+            </div>
+          </div>
+        </div>
+    {{/each}}
+  </table>
+</template>
+
+
 <template name="user">
   <tr>
     <td><a href="#" id={{_id}}>{{name}}</a></td>
     <td>{{email}}</td>
-    <td><button type="submit" class="delete btn btn-default" id={{_id}}>Delete</button></td>
+    <td><button type="submit" class="delete btn btn-danger" id={{_id}}>Delete</button></td>
   </tr>
 </template>
 
@@ -58,6 +97,27 @@
             {{> user}}
           {{/each}}
         </table>
+  
+  <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+  Add user 
+  </button>
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Add User</h4>
+        </div>
+        <div class="modal-body">
+                {{> createUser}}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
 </template>
 
 
@@ -111,56 +171,117 @@
       </tr>
     {{/each}} 
   </table>
-    
-  <!--<table data-toggle="table" class="table">
-    
-    
-    
-    {{#each taskDetails}}
-      <tr>
-        <td>{{name}}</td>
-        <td>{{deadline}}</td> 
-        <td id="completion">{{#if completed}}completed{{else}}uncompleted&nbsp;&nbsp;&nbsp;<button id={{_id.toHexString }} class="completed">Completed</button>{{/if}}</td> 
-      </tr>
-    {{/each}} 
-  </table>-->
 </template>
+
+
+
 
 
 
 <template name="addTask">
-  <h1>Add task</h1>
   <form class="new-task">
     <input type="text" class="form-control" name="name" placeholder="Name" /><br>
     <input type="text" class="form-control" name="Description" placeholder="Description" /><br>
     <input type="text" class="form-control" name="Deadline" id="my-datepicker"><br>
-    <input type="text" class="form-control" name="assignedUser"><br>
+    <select class="form-control" name="assignedUser">
+      {{#each Users}}
+        <option>{{name}}</option>
+      {{/each}}
+    </select>
     <button type="submit" class="btn btn-default new-task">Submit</button>
   </form>
-
+  
+  <div class="deadline">Please fill out the deadline</div>
+  <div class="errorname">Please fill out the name</div>
 </template>
+
+
+
+
+
+
+
+
+<template name="updateTask">
+  <form class="update-task">
+    <input type="text" class="form-control" name="name" placeholder="Name" /><br>
+    <input type="text" class="form-control" name="Description" placeholder="Description" /><br>
+    <input type="text" class="form-control" name="Deadline" id="my-datepicker"><br>
+    <select class="form-control" name="assignedUser">
+      {{#each Users}}
+        <option>{{name}}</option>
+      {{/each}}
+    </select>
+    <button type="submit" class="btn btn-default update-task">Submit</button>
+  </form>
+  
+  <div class="deadline">Please fill out the deadline</div>
+  <div class="errorname">Please fill out the name</div>
+</template>
+
+
+
 
 
 <template name="Tasks">
  
   <h1>Task</h1>
-  <button type="submit" class="btn btn-default addTasks">Add Task</button>
-  {{#if task}}
-        {{> addTask}}
+  <button class="btn btn-primary btn-lg previous">Previous</button>
+  <button class="btn btn-primary btn-lg next">Next</button><br><br>
+  <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+  Add Task 
+  </button><br><br><br>
+
+  <form>
+    <input type="radio" name="order" class="asc" value="asc">asc
+    <input type="radio" name="order" class="desc" value="desc">desc
+    <select class="form-control orderin" id="selection" name="optionvalue" >
+      <option data-id="dateCreated" value="dateCreated">dateCreated</option>
+      <option data-id="name" value="name" >name</option>
+      <option data-id="assignedUserName" value="assignedUserName">assignedUserName</option>
+      <option data-id="deadline" value="deadline">deadline</option>
+    </select>
+    
+    <input type="radio" name="order" class="pending" value="Pending">Pending
+    <input type="radio" name="order" class="completed" value="Completed">Completed
+    <input type="radio" name="order" class="all" value="all">All
+    
+    
+  </form>
   
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Add Task</h4>
+        </div>
+        <div class="modal-body">
+                {{> addTask}}
+        </div>
+      </div>
+    </div>
+  </div>
   
-  {{else}}
     <table data-toggle="table" class="table">
-      {{#each getTasks}}
+       <tr>
+        <th>Name</th>
+        <th>assignedUserName</th>
+        <th>deadline</th>
+        <th>dateCreated</th>
+      </tr>
+        
+      {{#each getTasksAsc}}
           <tr>
-            <td>{{name}}</td>
+            <td><a href="#" id={{_id}}>{{name}}</a></td>
             <td>{{assignedUserName}}</td>
             <td>{{deadline}}</td>
-
+            <td>{{dateCreated}}</td>
+            <td><button type="submit" class="delete btn btn-danger" id={{_id}}>Delete</button></td>
           </tr>
       {{/each}}
     </table>
-  {{/if}}
 </template>
 
 

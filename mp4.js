@@ -51,6 +51,8 @@ if (Meteor.isClient) {
       Session.set("clickedTask",false);
       Session.set("listuser",false);
       Session.set("profile",false);
+      Session.set("clickedTask",false);
+      
     }
     
     
@@ -111,10 +113,10 @@ if (Meteor.isClient) {
   
   Template.taskDetail.events({
     'click .next': function (event) {
-      alert(event.target.id);
+      //alert(event.target.id);
     },
     'click .previous': function (event) {
-      alert(event.target.id);
+      //alert(event.target.id);
     }
   
   });
@@ -241,7 +243,15 @@ if (Meteor.isClient) {
       var name = event.target.name.value;
       var description = event.target.Description.value;
       var deadline = $("#my-datepicker").val();
+      var completion = event.target.completion.value;
       var assignedUserName = event.target.assignedUser.value;
+      
+      if(completion=="true")
+        completion=true;
+      else completion=false;
+      
+      alert(completion);
+      
       if(name==''){
         $(".errorname").css('visibility', 'visible');
         return false;
@@ -269,6 +279,7 @@ if (Meteor.isClient) {
           name: name,
           description:description,
           deadline:deadline,
+          completed:completion,
           assignedUserName:assignedUserName,
           assignedUser:assignedUser}
         });
@@ -284,8 +295,12 @@ if (Meteor.isClient) {
   });
   
   Template.updateTask.helpers({
-  Users: function(){
-      return Users.find({});
+    currentTask:function(){
+      var id = Session.get("clickedTaskId");
+      return Task.find({_id:id});
+    },
+    Users: function(){
+        return Users.find({});
     }
   
   });
@@ -332,6 +347,7 @@ if (Meteor.isClient) {
       Session.set("listuser",false);
       Session.set("tasks",false);
       Session.set("clickedTaskId",event.target.id);
+      
 
     },
     

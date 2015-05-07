@@ -58,12 +58,14 @@
         <th>Description</th>
         <th>Deadline</th>
         <th>assignedUserName</th>
+        <th>completed</th>
       </tr>  
       <tr>
           <td>{{name}}</td>
           <td>{{description}}</td>
           <td>{{deadline}}</td>
           <td>{{assignedUserName}}</td>
+          <td>{{#if completed}}completed{{else}}pending{{/if}}</td>
         </tr>
         
         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -286,7 +288,7 @@
         
       {{#each getTasksAsc}}
           <tr>
-            <td><a href="#" id={{_id}}>{{name}}</a></td>
+            <td><a href="#" id={{id}} >{{name}}</a></td>
             <td>{{assignedUserName}}</td>
             <td>{{deadline}}</td>
             <td>{{dateCreated}}</td>

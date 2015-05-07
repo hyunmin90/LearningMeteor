@@ -2,7 +2,7 @@ Users = new Meteor.Collection("users");
 Task = new Meteor.Collection("tasks");
 
 var count = 0;
-
+var nextcount = 0;
 if (Meteor.isClient) {
   
   
@@ -41,12 +41,14 @@ if (Meteor.isClient) {
   Template.body.events({
     
     'click .listuser':function(event){
+      Session.set("nextOffset",0);
       Session.set("listuser",true);
       Session.set("clickedTask",false);
       Session.set("profile",false);
       Session.set("tasks",false);
     },
     'click .tasks':function(event){
+      Session.set("nextOffset",0);
       Session.set("tasks",true);
       Session.set("clickedTask",false);
       Session.set("listuser",false);
@@ -113,10 +115,15 @@ if (Meteor.isClient) {
   
   Template.taskDetail.events({
     'click .next': function (event) {
+      nextcount++;
+      Session.set("nextOffset",nextcount);
+      
       //alert(event.target.id);
     },
     'click .previous': function (event) {
       //alert(event.target.id);
+      nextcount--;
+      Session.set("nextOffset",nextcount);
     }
   
   });
@@ -125,7 +132,8 @@ if (Meteor.isClient) {
   
     taskDetail:function(){
       var id = Session.get("clickedTaskId");
-      return Task.find({_id:id});
+      var offset = Session.get("nextOffset");
+      return Task.find({id:{$gte:id}},{limit:1,skip:offset});
     },
     Users: function () {
       return Users.find({});
@@ -209,13 +217,16 @@ if (Meteor.isClient) {
           return false;
       }
       var assignedUser = findeone._id;
-      
+      var d = new Date();
+      var n = d.toISOString();
+      var completed=false;
       Task.insert({
+          id:n,
           name: name,
           description:description,
           deadline:deadline,
           assignedUserName:assignedUserName,
-          completed:false,
+          completed:completed,
           assignedUser:assignedUser,
           dateCreated: new Date() // current time
         });
@@ -297,7 +308,7 @@ if (Meteor.isClient) {
   Template.updateTask.helpers({
     currentTask:function(){
       var id = Session.get("clickedTaskId");
-      return Task.find({_id:id});
+      return Task.find({id:id});
     },
     Users: function(){
         return Users.find({});
